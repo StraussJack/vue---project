@@ -1,13 +1,12 @@
 <template>
     <div class="app">
-        <post-form 
-        @create="createPost"
-        />
-        <post-list 
-        :posts="posts"
-        @remove = 'removePost'
-        
-         />
+        <h1>Page with posts</h1>
+        <my-button @click="showDialog" style="margin: 15px 0;">to create post</my-button>
+        <my-dialog v-model:show="dialogVisible">
+            <post-form @create="createPost" />
+        </my-dialog>
+
+        <post-list :posts="posts" @remove='removePost' />
     </div>
 </template>
 
@@ -26,6 +25,8 @@
 <script>
 import PostList from '@/Components/PostList.vue'
 import PostForm from '@/Components/PostForm.vue'
+import MyButton from './Components/UI/MyButton.vue';
+import axios from 'axios';
 
 
 
@@ -36,23 +37,35 @@ export default {
     },
     data() {
         return {
-            posts: [
-                { id: 1, title: 'Javascript', body: 'descr ' },
-                { id: 2, title: 'Javascript 2', body: 'descr  2' },
-                { id: 3, title: 'Javascript 3', body: 'descr  3' },
-                { id: 3, title: 'Javascript 4', body: 'descr  4' },
-            ],
-           
+            posts: [],
+            dialogVisible: false,
+            modificatorValue: '',
+
+
         }
     },
     methods: {
         createPost(post) {
-           this.posts.push(post);
-    },
-    removePost(post) {
-        this.posts = this.posts.filter(p => p.id !== post.id)
-    }
+            this.posts.push(post);
+            this.dialogVisible = false;
+        },
+        removePost(post) {
+            this.posts = this.posts.filter(p => p.id !== post.id)
+        },
+        showDialog() {
+            this.dialogVisible = true;
+        },
+        async fetchPosts() {
+            try {
 
+                const response = await axios.get("https://jsonplaceholder.typicode.com/posts?_limit=10");
+                this.posts = response.data;
+            } catch (e) {
+                alert('danger')
+
+            }
+
+        }
 
     }
 
